@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="preload" as="image" href="reconnect-on.png" fetchpriority="high">
+    <link rel="preload" as="image" href="reconnect-click.png" fetchpriority="high">
+    <link rel="preload" as="image" href="cancel-on.png" fetchpriority="high">
+    <link rel="preload" as="image" href="cancel-click.png" fetchpriority="high">
+    <link rel="preload" as="image" href="help-on.png" fetchpriority="high">
+    <link rel="preload" as="image" href="help-click.png" fetchpriority="high">
+    <link rel="preload" as="image" href="okay-on.png" fetchpriority="high">
+    <link rel="preload" as="image" href="okay-click.png" fetchpriority="high">
+    <script src="jquery-4.0.0.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'Frizqt';
+            src: url('frizqt__.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap; /* Keeps text visible while the font loads */
+        }
+        html, body {
+            cursor: url("Point.png"), default;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Frizqt', serif;
+
+        }
+        body {
+            background-color: #000;
+            display: grid;
+            place-items: center;
+            height: 100vh;
+        }
+        .bg {
+            position: fixed;
+            z-index: 1;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: 100%;
+            height: 100vh;
+        }
+        .overlay {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+        }
+        .reconnect {
+            background: url('reconnect-off.png');
+            background-size: contain;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 2.8vw;
+            width: 11.6vw;
+            outline: none;
+            border: none;
+        }
+        .reconnect:hover {
+            background: url('reconnect-on.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .reconnect:active {
+            background: url('reconnect-click.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .help {
+            background: url('help-off.png');
+            background-size: contain;
+            height: 1.8vw;
+            width: 11.6vw;
+            outline: none;
+            border: none;
+        }
+        .help:hover {
+            background: url('help-on.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .help:active {
+            background: url('help-click.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .cancel {
+            background: url('cancel-off.png');
+            background-size: contain;
+            height: 1.8vw;
+            width: 11.6vw;
+            outline: none;
+            border: none;
+        }
+        .cancel:hover {
+            background: url('cancel-on.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .cancel:active {
+            background: url('cancel-click.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .okay {
+            background: url('okay-off.png');
+            background-size: contain;
+            height: 1.8vw;
+            width: 11.6vw;
+            outline: none;
+            border: none;
+        }
+        .okay:hover {
+            background: url('okay-on.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .okay:active {
+            background: url('okay-click.png');
+            background-size: contain;
+            cursor: url("Point.png"), default;
+        }
+        .modules {
+            z-index: 20;
+        }
+        .module {
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            padding: 10px;
+            text-align: center;
+            border: 4px solid #5e3b18;
+        }
+        .module p {
+            font-size: 1.3vw;
+            color: #f2ca00;
+            text-shadow: rgb(0, 0, 0) 1px 0px 0px, rgb(0, 0, 0) 0.540302px 0.841471px 0px, rgb(0, 0, 0) -0.416147px 0.909297px 0px, rgb(0, 0, 0) -0.989993px 0.14112px 0px, rgb(0, 0, 0) -0.653644px -0.756803px 0px, rgb(0, 0, 0) 0.283662px -0.958924px 0px, rgb(0, 0, 0) 0.96017px -0.279416px 0px;
+            padding: 0;
+            margin: 0 0 3px;
+        }
+        .module .control {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <video autoplay muted loop class="bg">
+        <source src="background.mp4" type="video/mp4">
+    </video>
+    <div class="overlay">
+        <button type="button" class="red-btn reconnect"></button>
+    </div>
+    <div class="modules">
+        <div class="module queue" style="display: block;">
+            <p>Login Servers Are Full</p>
+            <p>Position in queue: <span id="queue-position"></span></p>
+            <p>Estimated time: <span>< 1 minute</span></p>
+            <div class="control">
+                <button type="button" class="red-btn cancel"></button>
+            </div>
+        </div>
+        <div class="module server">
+            <p>Retrieving server information</p>
+            <div class="control">
+                <button type="button" class="red-btn cancel"></button>
+            </div>
+        </div>
+        <div class="module disconnected">
+            <p>You have been disconnected. (WOW51900102)</p>
+            <div class="control">
+                <button type="button" class="red-btn help"></button>
+                <button type="button" class="red-btn okay"></button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let timer;
+        let queuePosition;
+
+        $(document).ready(function(){
+            queuePosition = getPlaceInQueue(150, 190);
+            $('#queue-position').html(queuePosition);
+            reduceToZero(queuePosition);
+
+            $(".reconnect").click(function(){
+                connect();
+            });
+            $(".cancel").click(function(){
+                cancel();
+            });
+            $(".okay").click(function(){
+                cancel();
+            });
+        });
+
+        function connect(queuePosition) {
+            $('.module').hide();
+            queuePosition = getPlaceInQueue(150, 190);
+            $('#queue-position').html(queuePosition);
+            reduceToZero(queuePosition);
+            $('.queue').show();
+        }
+
+        function cancel() {
+            $('.module').hide();
+            clearInterval(timer);
+        }
+
+        function disconnect() {
+            clearInterval(timer);
+            $('.module').hide();
+            $('.disconnected').show();
+        }
+
+        function getPlaceInQueue(max, min) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function reduceToZero(startNum) {
+            let currentNum = startNum;
+            const intervalTime = 5000;
+
+            timer = setInterval(() => {
+                const randomReduction = Math.floor(Math.random() * 10) + 1;
+                currentNum -= randomReduction;
+
+                if (currentNum <= 0) {
+                    clearInterval(timer);
+                    disconnect();
+                }
+
+                if (Math.random() < 0.05) {
+                    disconnect();
+                }
+
+                $('#queue-position').html(currentNum);
+            }, intervalTime);
+        }
+    </script>
+</body>
+</html>
